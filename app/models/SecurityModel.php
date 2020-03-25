@@ -1,13 +1,14 @@
 <?php
-require_once(PATH_MODELS."/ConnectionModel.php");
+namespace Model;
 
-class SecurityModel {
+use Model\BaseModel;
 
-	public function valideUser($login, $password){
-		$model = new ConnectionModel();	
-		$sql = "select u.id, u.username, u.balance 
+class SecurityModel extends BaseModel {
+
+	public function valideUser(string $login, string $password){	
+		$sql = "select u.id, u.username  
 				from `user` as u
 				where u.username= '".$login."' and u.password = '".md5($password)."'";
-		return $model->execSql($sql, array($login,$password));
+		return $this->execSql($sql, array($login,$password));
 	}	
 }

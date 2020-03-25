@@ -1,27 +1,20 @@
 <?php
-require_once(PATH_MODELS."/ConnectionModel.php");
+namespace Model;
 
-class OrderModel {
+use interfaces\RegisterInterface;
+use Model\BaseModel;
 
-    private $id;
+class OrderModel extends BaseModel implements RegisterInterface {
     private $userId;
     private $state;
     private $total;
     private $shipping;
 
-    public function getId() {
-        return $this->id;
-    }
- 
-    public function setId($id) {
-        $this->id = $id;
-    }
-
     public function getUserId() {
         return $this->userId;
     }
  
-    public function setUserId($userId) {
+    public function setUserId(int $userId) {
         $this->userId = $userId;
     }
 
@@ -29,7 +22,7 @@ class OrderModel {
         return $this->state;
     }
  
-    public function setState($state) {
+    public function setState(int $state) {
         $this->state = $state;
     }
 
@@ -37,7 +30,7 @@ class OrderModel {
         return $this->total;
     }
  
-    public function setTotal($total) {
+    public function setTotal(float $total) {
         $this->total = $total;
     }
 
@@ -45,35 +38,32 @@ class OrderModel {
         return $this->shipping;
     }
  
-    public function setShipping($shipping) {
+    public function setShipping(int $shipping) {
         $this->shipping = $shipping;
     }
 
 	public function save(){
-		$model = new ConnectionModel();	
 		$sql = "INSERT INTO `order` ( user_id,state,total,shipping)
         VALUES(
                ".$this->userId.",
                ".$this->state.",
                ".$this->total.",
                ".$this->shipping.");";	
-		return $model->execSql($sql, array(),false, true);
+		return $this->execSql($sql, array(),false, true);
 	}	
 	
 	public function update(){
-		$model = new ConnectionModel();	
 		$sql = "UPDATE `order` set 
             state = ".$this->state.",
             total = ".$this->total.",
             shipping = ".$this->shipping." 
-            where id = ".$this->id;	
-		return $model->execSql($sql, array(),false, true);
+            where id = ".$this->getId();	
+		return $this->execSql($sql, array(),false, true);
     }
 
-    public function getActiveOrder($userId){
-        $model = new ConnectionModel();	
+    public function getActiveData(int $id){
 		$sql = "select id from `order` where user_id = ? and state = 1";
-        $order = $model->execSql($sql, array($userId));
+        $order = $this->execSql($sql, array($id));
         return $order ? $order->id : 0;
     }
 }

@@ -1,9 +1,12 @@
 <?php
-require_once (PATH_MODELS."/ProductModel.php");
-require_once (PATH_MODELS . "/OrderModel.php");
-require_once (PATH_MODELS . "/DetailsModel.php");
-require_once (PATH_MODELS . "/RatingModel.php");
-require_once (PATH_MODELS . "/UserModel.php");
+namespace Model;
+
+use Model\ProductModel;
+use Model\OrderModel;
+use Model\DetailsModel;
+use Model\RatingModel;
+use Model\UserModel;
+
 
 class ShoppingCartModel {
 
@@ -12,12 +15,12 @@ class ShoppingCartModel {
 		return $model->getProductList();
 	}
 	
-	public function getOrder($orderId){
+	public function getOrder(int $orderId){
 		$model = new DetailsModel();		
 		return $model->getProductList($orderId);
 	}
 
-	public function addProduct($orderId, $userId){
+	public function addProduct(int $orderId, int $userId){
 		$product = new ProductModel();
 		$product->setId($_POST["id"]);
 		$product->setPrice($_POST["price"]);
@@ -45,25 +48,25 @@ class ShoppingCartModel {
 			$details->setAmount(1);
 			$details->save();
 		}
-		return $details->countProducts($orderId);
+		return $details->getActiveData($orderId);
 	}
 
-	public function sumAmount($orderId){
+	public function sumAmount(int $orderId){
 		$details = new DetailsModel();
 		$details->setId($_POST["id"]);
 		$details->setAmount($_POST["amount"]);
 		$details->updateAmount();
-		return $details->countProducts($orderId);
+		return $details->getActiveData($orderId);
 	}
 
-	public function removeProduct($orderId){
+	public function removeProduct(int $orderId){
 		$details = new DetailsModel();
 		$details->setId($_POST["id"]);
 		$details->removeProduct();
-		return $details->countProducts($orderId);
+		return $details->getActiveData($orderId);
 	}
 	
-	public function saveCart($orderId){
+	public function saveCart(int $orderId){
 		$order = new OrderModel();
 		$order->setId($orderId);
 		$order->setState(0);
@@ -71,18 +74,17 @@ class ShoppingCartModel {
 		$order->setShipping($_POST["shippingPay"]);
 		$order->update();
 		$userModel = new UserModel();
-		$balance = $_SESSION['SESSION_USER']->balance - $_POST["totalPay"];
-		$userModel->updateBalance($_SESSION['SESSION_USER']->id, $balance);
-		$_SESSION['SESSION_USER']->balance = $balance;
+		$userModel->updateBalance($_SESSION['SESSION_USER']->id, $_POST["totalPay"]);
+		$balance = $userModel->getUserBalance($_SESSION['SESSION_USER']->id);
 		return (object) array(
 			'total' => $_POST["totalPay"],
-			'previous' => $_SESSION['SESSION_USER']->balance + $_POST["totalPay"],
+			'previous' => $balance + $_POST["totalPay"],
 			'current' => $balance,
 			"products" => 4
 		);		
 	}
 
-	public function saveRating($userId){
+	public function saveRating(int $userId){
 		$ratingModel = new RatingModel();
 		$rating = $ratingModel->getRatingSave($userId, $_POST["id"]);
 		if (!$rating) {
@@ -91,7 +93,13 @@ class ShoppingCartModel {
 			$ratingModel->setValue($_POST["value"]);
 			$ratingModel->save();
 		}
-		return $ratingModel->getRatingValue($_POST["id"]);
+		return $ratingModel->getActiveData($_POST["id"]);
 	}
 
+	public function valideBalance(int $userId){
+		$userModel = new UserModel();
+		$total = $_POST["totalPay"];
+		$balance = $userModel->getUserBalance($userId);
+		return $balance > $total;		
+	}
 }

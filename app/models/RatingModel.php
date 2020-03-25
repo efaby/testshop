@@ -1,27 +1,20 @@
 <?php
-require_once(PATH_MODELS."/ConnectionModel.php");
+namespace Model;
 
-class RatingModel {
+use interfaces\RegisterInterface;
+use Model\BaseModel;
 
-    private $id;
+class RatingModel extends BaseModel implements RegisterInterface {
     private $userId;
     private $productId;
     private $amount;
     private $price;
 
-    public function getId() {
-        return $this->id;
-    }
- 
-    public function setId($id) {
-        $this->id = $id;
-    }
-
     public function getUserId() {
         return $this->userId;
     }
  
-    public function setUserId($userId) {
+    public function setUserId(int $userId) {
         $this->userId = $userId;
     }
 
@@ -29,7 +22,7 @@ class RatingModel {
         return $this->productId;
     }
  
-    public function setProductId($productId) {
+    public function setProductId(int $productId) {
         $this->productId = $productId;
     }
 
@@ -37,31 +30,28 @@ class RatingModel {
         return $this->value;
     }
  
-    public function setValue($value) {
+    public function setValue(int $value) {
         $this->value = $value;
     }
 
     public function save(){
-		$model = new ConnectionModel();	
 		$sql = "INSERT INTO rating ( id,user_id,product_id,value)
         VALUES(NULL,
                ".$this->userId.",
                ".$this->productId.",
                ".$this->value.");";	
-		return $model->execSql($sql, array(),false, true);
+		return $this->execSql($sql, array(),false, true);
     }
 
-    public function getRatingValue($productId) {
-		$model = new ConnectionModel();	
+    public function getActiveData(int $id) {
         $sql = "SELECT product_id, AVG(`value`) as rating FROM rating
             where product_id = ?
             GROUP BY product_id";		
-		return $model->execSql($sql, array($productId));
+		return $this->execSql($sql, array($id));
     }
 
-    public function getRatingSave($userId, $productId) {
-        $model = new ConnectionModel();	
+    public function getRatingSave(int $userId, int $productId) {
 		$sql = "select * from rating where user_id = ? and product_id = ?";
-		return $model->execSql($sql, array($userId, $productId));
+		return $this->execSql($sql, array($userId, $productId));
     }
 }

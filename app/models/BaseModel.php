@@ -1,9 +1,20 @@
 <?php
+namespace Model;
+use \PDO;
 
-class ConnectionModel
+class BaseModel
 {
-	private $pdo;	
-
+    private $pdo;
+    private $id;
+    
+    public function getId() {
+        return $this->id;
+    }
+ 
+    public function setId($id) {
+        $this->id = $id;
+    }
+    
 	private function openConnection(){		
 		try{
 			$this->pdo = new PDO('mysql:host='.HOSTNAME_DATABASE.';dbname='.NAME_DATABASE.';charset=utf8', USERNAME_DATABASE, PASSWORD_DATABASE);

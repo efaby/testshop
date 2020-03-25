@@ -1,7 +1,8 @@
 <?php
-require_once(PATH_MODELS."/SecurityModel.php");
-require_once (PATH_MODELS . "/OrderModel.php");
-require_once (PATH_MODELS . "/DetailsModel.php");
+
+use Model\SecurityModel;
+use Model\OrderModel;
+use Model\DetailsModel;
 
 class SecurityController {
 	
@@ -18,8 +19,8 @@ class SecurityController {
 			$_SESSION['SESSION_USER'] = $result;
 			$details = new DetailsModel();
 			$order = new OrderModel();		 
-			$_SESSION['SESSION_USER']->orderId = $order->getActiveOrder($result->id);
-			$_SESSION['SESSION_USER']->numberItems = $details->countProducts($_SESSION['SESSION_USER']->orderId);
+			$_SESSION['SESSION_USER']->orderId = $order->getActiveData($result->id);
+			$_SESSION['SESSION_USER']->numberItems = $details->getActiveData($_SESSION['SESSION_USER']->orderId);
 			session_write_close();		
 			$response['data'] = URL_BASE .'ShoppingCart/products/';
 				
@@ -31,7 +32,7 @@ class SecurityController {
 		exit();
 	}
 	
-	private function cleanVariables($str){
+	private function cleanVariables(string $str){
 		$str = @trim($str);
 		if(get_magic_quotes_gpc())
 		{

@@ -44,8 +44,8 @@
                             <div class="col-xs-2">
                                 <input class="form-control input-item" data-id="<?php echo $item->id; ?>"
                                     data-value="<?php echo $item->amount; ?>" data-price="<?php echo $item->price; ?>"
-                                    id="amount" min="1" name="amount" type="number"
-                                    value="<?php echo $item->amount; ?>" />
+                                    min="1" name="amount" type="number"
+                                    value="<?php echo $item->amount; ?>" id="in-<?php echo $item->id; ?>" />
                             </div>
                             <div class="col-xs-2">
                                 <button type="button" class="btn btn-link btn-ms btn-item"
@@ -129,7 +129,12 @@ $(".btn-item").click(function() {
         })
         .done(function(data) {
             $("#items").text(data);
+            var value = parseInt($("#in-" + id).data("value")) * parseFloat($("#in-" + id).data("price"));
+            var total = parseFloat($("#total").data("value"));
+            total = total - value;
+            $("#total").data("value", total);
             $("div").remove("#item-" + id);
+            $("#shipping").val("-");
         });
 });
 
@@ -147,16 +152,21 @@ $("#shipping").change(function() {
 
 $(".btn-pay").click(function() {
     var total = $("#total").text();
-    var balance = <?php echo $_SESSION['SESSION_USER']->balance; ?>;
-    if (parseFloat(total) < parseFloat(balance)) {
-        $("#totalPay").val($("#total").text());
-        $("#shippingPay").val($("#shipping").val());
-        $("#frmPay").submit();
-    } else {
-        $(".btn-pay").prop("disabled", true);
-        $("#shipping").val("-")
-        $("#msg").text("Balance Insufficient");
-    }
+    $.post("../../ShoppingCart/valideBalance/", {
+            totalPay: total
+        })
+        .done(function(data) {
+            console.log("data", data);
+            if (parseInt(data)) {
+                $("#totalPay").val($("#total").text());
+                $("#shippingPay").val($("#shipping").val());
+                $("#frmPay").submit();
+            } else {
+                $(".btn-pay").prop("disabled", true);
+                $("#shipping").val("-");
+                $("#msg").text("Balance Insufficient");
+            }
+        });        
 });
 </script>
 </body>

@@ -1,5 +1,6 @@
 <?php
-require_once (PATH_MODELS . "/ShoppingCartModel.php");
+
+use Model\ShoppingCartModel;
 
 class ShoppingCartController {
 	
@@ -46,6 +47,12 @@ class ShoppingCartController {
 		$model = new ShoppingCartModel();
 		$result = $model->saveRating($_SESSION['SESSION_USER']->id);
 		echo intval ($result->rating);
+	}
+
+	public function valideBalance() {
+		$model = new ShoppingCartModel();
+		$result = $model->valideBalance($_SESSION['SESSION_USER']->id);
+		echo $result;
 	}
 
 }
